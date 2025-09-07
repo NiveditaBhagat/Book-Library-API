@@ -21,9 +21,6 @@ books_db: List[Book] = [
 
 
 
-
-
-
 @app.get("/books")
 def get_books():
     return books_db
@@ -33,4 +30,11 @@ def get_book(book_id:int):
     for book in books_db:
         if book.id==book_id:
             return book
+
+
+
+@app.post("/books/")
+def create_book(book: Book):    
+    books_db.append(book)
+    return {"message": "Book added successfully", "book": book}
     
