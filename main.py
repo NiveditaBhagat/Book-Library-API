@@ -1,16 +1,28 @@
 from fastapi import FastAPI
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field,HTTPException
 from typing import List
 
 app = FastAPI()
 
 # Pydantic model for a Book
-class Book(BaseModel):
+class Book:
     id:int
-    title: str
+    title: str =Field(min_length=3)
     author: str
+    description: str
+    rating : int
     year: int | None = Field(default=None)
 
+    def __init__(self,id,title, author,description,rating,year):
+        self.id=id
+        self.title=title
+        self.author=author
+        self.description=description
+        self.rating=rating
+        self.year=year
+
+class Book_Request(BaseModel):
+    
 
 # Temporary in-memory "database"
 books_db: List[Book] = [
@@ -21,7 +33,7 @@ books_db: List[Book] = [
 
 
 
-@app.get("/books")
+@app.get("/books",status_code=status.HTTP_200_OK)
 def get_books():
     return books_db
 
@@ -30,6 +42,7 @@ def get_book(book_id:int):
     for book in books_db:
         if book.id==book_id:
             return book
+        raise HTTPException(status_code=404, detail='Item not found')
 
 
 
