@@ -22,13 +22,35 @@ class Book:
         self.year=year
 
 class Book_Request(BaseModel):
+    id:Optional[int]=Field(description='Id is not needed to create', default=none)
+    title:str=Field(min_length=3)
+    author:str=Field(min_lenght=4)
+    description:str=Field(min_length=4, maxmax_length=50)
+    rating:int=Field(gt= -1,lt=6 )
+    year:int=Field(gt=1999, lt=2031)
+
+     model_config ={
+        "json_schema_extra" : {
+            "example" :{
+                    "id":1
+                 "title": "cse",
+                 "author": "jcob",
+                 "description": "cse book",
+                 "rating": 3,
+                 "year": 2012
+            }
+        }
+    }
     
 
 # Temporary in-memory "database"
-books_db: List[Book] = [
-    Book(id=1, title="1984", author="George Orwell", year=1949),
-    Book(id=2, title="To Kill a Mockingbird", author="Harper Lee", year=1960),
-    Book(id=3, title="The Great Gatsby", author="F. Scott Fitzgerald", year=1925),
+books_db=[
+    Book(1,'Comp Sceince','codingwithME','Nice book',4,2030),
+    Book(2,'Fast API','author 2','api book',5,2030),
+    Book(3,'Reacr','author 3','good book',4,2029),
+    Book(4,'Comp network','author 4','network book',3, 2028),
+    Book(5,'HP5','codingwithME','Hp book',2, 2027),
+    Book(6,'HP6','codingwithME','readable book',1,2026)
 ]
 
 
@@ -47,7 +69,10 @@ def get_book(book_id:int):
 
 
 @app.post("/books/")
-def create_book(book: Book):    
-    books_db.append(book)
-    return {"message": "Book added successfully", "book": book}
+def create_book(book_request: BookRequest):   
+    print(type(BookRequest)) 
+    new_book=Book(**book_request.model_dump())# converting the request to book object
+    print(type(new_book))
+    books_db.append(new_book)
+    return {"message": "Book added successfully", "book": books_db}
     
