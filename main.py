@@ -1,6 +1,8 @@
-from fastapi import FastAPI
-from pydantic import BaseModel, Field,HTTPException
+from fastapi import FastAPI,Body, Path,Query,HTTPException
+from typing import Optional
+from pydantic import BaseModel, Field
 from typing import List
+from starlette import status
 
 app = FastAPI()
 
@@ -21,18 +23,18 @@ class Book:
         self.rating=rating
         self.year=year
 
-class Book_Request(BaseModel):
-    id:Optional[int]=Field(description='Id is not needed to create', default=none)
+class BookRequest(BaseModel):
+    id:Optional[int]=Field(description='Id is not needed to create', default=None)
     title:str=Field(min_length=3)
     author:str=Field(min_lenght=4)
     description:str=Field(min_length=4, maxmax_length=50)
     rating:int=Field(gt= -1,lt=6 )
     year:int=Field(gt=1999, lt=2031)
 
-     model_config ={
+    model_config ={
         "json_schema_extra" : {
             "example" :{
-                    "id":1
+                 "id":1,
                  "title": "cse",
                  "author": "jcob",
                  "description": "cse book",
@@ -60,11 +62,12 @@ def get_books():
     return books_db
 
 @app.get("/books/{book_id}")  
-def get_book(book_id:int):
+async def get_book(book_id: int):
     for book in books_db:
+        print(book.id, book_id)
         if book.id==book_id:
             return book
-        raise HTTPException(status_code=404, detail='Item not found')
+    raise HTTPException(status_code=404, detail='Item not found')
 
 
 
